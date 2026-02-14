@@ -7,7 +7,8 @@ pipeline {
             steps {
                 sh '''
                 python3 -m venv venv
-                ./venv/bin/pip install -r requirements.txt
+                venv/bin/python -m pip install --upgrade pip
+                venv/bin/python -m pip install -r requirements.txt
                 '''
             }
         }
@@ -15,11 +16,12 @@ pipeline {
         stage('Restart Flask App') {
             steps {
                 sh '''
-                pm2 restart flask-app || \
-                pm2 start app.py --name flask-app --interpreter ./venv/bin/python
+                pkill -f app.py || true
+                nohup venv/bin/python app.py > flask.log 2>&1 &
                 '''
             }
         }
+
     }
 }
 
